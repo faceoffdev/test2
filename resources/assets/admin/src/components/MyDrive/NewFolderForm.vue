@@ -1,0 +1,95 @@
+<template>
+    <VDialog
+        :value="open"
+        class="mpu"
+        width="500"
+        persistent
+    >
+        <form @submit.prevent="onSubmit">
+            <VCard>
+                <VCardTitle
+                    class="headline grey lighten-2"
+                >
+                    Новая папка
+                </VCardTitle>
+
+                <VCardText>
+                    <VTextField
+                        v-model="name"
+                        v-validate="'required'"
+                        :error-messages="errors.collect('name')"
+                        label="Имя"
+                        data-vv-name="name"
+                        required
+                    />
+                </VCardText>
+
+                <VCardActions>
+                    <VBtn
+                        color="info"
+                        type="submit"
+                        flat
+                    >
+                        Создать
+                    </VBtn>
+                    <VBtn
+                        color="error"
+                        flat
+                        @click="close"
+                    >
+                        Отменить
+                    </VBtn>
+                </VCardActions>
+            </VCard>
+        </form>
+    </VDialog>
+</template>
+
+<script>
+import Mixin from './mixin'
+
+export default {
+    $_veeValidate: {
+        validator: 'new'
+    },
+    mixins: [Mixin],
+    props: {
+        open: {
+            type: Boolean,
+            default: false
+        }
+    },
+    data () {
+        return {
+            name: ''
+        }
+    },
+    computed: {
+
+    },
+    methods: {
+        onSubmit () {
+            this.$validator.validateAll()
+            const item = {
+                name: this.name,
+                parent_id: this.currentFolderId
+            }
+
+            this.$store.dispatch('Media/addFolder', item)
+                .then(() => {
+                    this.close()
+                })
+        },
+        close () {
+            this.$store.commit('Media/newFolderModal', false)
+            this.name = ''
+        }
+    }
+}
+</script>
+
+<style>
+.mpu .v-card__actions {
+    border-top: 1px solid #ddd;
+}
+</style>
